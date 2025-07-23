@@ -129,6 +129,7 @@
       for (let song of songs) {
         if (song.confidence === undefined) song.confidence = 0;
         if (song.dateAdded === undefined) song.dateAdded = song.lastPracticed;
+        if (song.previousPracticed === undefined) song.previousPracticed = null;
 
         const div = document.createElement('div');
         div.className = 'song';
@@ -150,10 +151,18 @@
 
         const button = document.createElement('button');
         button.className = 'practice-button';
-        button.title = days === 0 ? 'Practised today' : 'Mark as practised';
+        button.title = days === 0 ? 'Undo practised today' : 'Mark as practised';
         button.textContent = days === 0 ? '✅' : '⭕';
         button.onclick = () => {
-          song.lastPracticed = new Date().toISOString();
+          if (daysSince(song.lastPracticed) === 0) {
+            if (song.previousPracticed) {
+              song.lastPracticed = song.previousPracticed;
+              delete song.previousPracticed;
+            }
+          } else {
+            song.previousPracticed = song.lastPracticed;
+            song.lastPracticed = new Date().toISOString();
+          }
           saveSongs(songs);
           renderSongs();
         };
@@ -181,7 +190,13 @@
       if (!title) return;
       const now = new Date().toISOString();
       const songs = JSON.parse(localStorage.getItem(storageKey)) || [];
-      songs.push({ title, lastPracticed: now, confidence: 0, dateAdded: now });
+      songs.push({
+        title,
+        lastPracticed: now,
+        previousPracticed: null,
+        confidence: 0,
+        dateAdded: now
+      });
       saveSongs(songs);
       input.value = '';
       renderSongs();
