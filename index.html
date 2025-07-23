@@ -101,11 +101,35 @@
   <input id="songName" type="text" placeholder="Song name" />
   <button onclick="addSong()">Add Song</button>
 
+  <div style="margin-top:1rem;">
+    <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importSongs(event)">
+    <button onclick="document.getElementById('importFile').click()">Import Songs</button>
+    <button onclick="exportSongs()">Export Songs</button>
+    <span id="syncStatus" style="margin-left:1rem;"></span>
+  </div>
+
   <h2>Your Songs</h2>
   <div id="songList"></div>
 
   <script>
     const storageKey = 'setlistSongs';
+    const hashKey = 'setlistFileHash';
+
+    function hash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+      }
+      return h.toString();
+    }
+
+    function updateSyncStatus() {
+      const status = document.getElementById('syncStatus');
+      const songs = JSON.parse(localStorage.getItem(storageKey)) || [];
+      const current = hash(JSON.stringify(songs));
+      const saved = localStorage.getItem(hashKey);
+      status.textContent = saved && saved === current ? 'In sync' : 'Unsynced';
+    }
 
     async function loadSongs() {
       try {
@@ -115,16 +139,23 @@
       } catch (err) {
         console.error('Failed to fetch songs:', err);
       }
-      return JSON.parse(localStorage.getItem(storageKey)) || [];
+      const songs = JSON.parse(localStorage.getItem(storageKey)) || [];
+      updateSyncStatus();
+      return songs;
     }
 
     async function saveSongs(songs) {
       localStorage.setItem(storageKey, JSON.stringify(songs));
-      await fetch('/songs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ setlistSongs: songs })
-      });
+      try {
+        await fetch('/songs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ setlistSongs: songs })
+        });
+      } catch (err) {
+        console.error('Failed to save songs to server:', err);
+      }
+      updateSyncStatus();
     }
 
     function daysSince(dateStr) {
@@ -243,6 +274,43 @@
       await saveSongs(songs);
       input.value = '';
       renderSongs();
+    }
+
+    async function importSongs(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const songs = data.setlistSongs || data;
+        if (Array.isArray(songs)) {
+          await saveSongs(songs);
+          localStorage.setItem(hashKey, hash(JSON.stringify(songs)));
+          renderSongs();
+        } else {
+          alert('Invalid file format');
+        }
+      } catch (err) {
+        alert('Failed to import file');
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function exportSongs() {
+      const songs = JSON.parse(localStorage.getItem(storageKey)) || [];
+      const json = JSON.stringify({ setlistSongs: songs }, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'songs.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      localStorage.setItem(hashKey, hash(JSON.stringify(songs)));
+      updateSyncStatus();
     }
 
     loadSongs().then(renderSongs);
