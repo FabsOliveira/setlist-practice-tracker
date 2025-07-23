@@ -1,16 +1,3 @@
 {
-  "setlistSongs": [
-    {
-      "title": "Song A",
-      "lastPracticed": "2025-07-18T12:00:00.000Z",
-      "confidence": 3,
-      "dateAdded": "2025-07-18T12:00:00.000Z"
-    },
-    {
-      "title": "Song B",
-      "lastPracticed": "2025-07-22T12:00:00.000Z",
-      "confidence": 5,
-      "dateAdded": "2025-07-22T12:00:00.000Z"
-    }
-  ]
+  "setlistSongs": []
 }
