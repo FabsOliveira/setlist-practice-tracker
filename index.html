@@ -56,6 +56,24 @@
       transform: scale(1.2);
       color: #2e7d32;
     }
+    .delete-button {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 2.5rem;
+      margin: auto 0;
+      height: 1.6rem;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #f44336;
+      transition: transform 0.1s ease-in-out;
+    }
+    .delete-button:hover {
+      transform: scale(1.2);
+      color: #c62828;
+    }
     .stars {
       display: flex;
       gap: 2px;
@@ -176,6 +194,21 @@
           renderSongs();
         };
 
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-button';
+        deleteBtn.title = 'Delete song';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = async () => {
+          if (confirm('Delete this song?')) {
+            const idx = songs.indexOf(song);
+            if (idx > -1) {
+              songs.splice(idx, 1);
+              await saveSongs(songs);
+              renderSongs();
+            }
+          }
+        };
+
         header.appendChild(title);
         header.appendChild(starRating);
 
@@ -188,6 +221,7 @@
 
         div.appendChild(header);
         div.appendChild(footer);
+        div.appendChild(deleteBtn);
         div.appendChild(button);
         list.appendChild(div);
       }
