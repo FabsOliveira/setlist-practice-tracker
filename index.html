@@ -90,10 +90,14 @@
     const storageKey = 'setlistSongs';
 
     async function loadSongs() {
-      const response = await fetch('/songs');
-      const data = await response.json();
-      localStorage.setItem(storageKey, JSON.stringify(data.setlistSongs));
-      return data.setlistSongs;
+      try {
+        const response = await fetch('/songs');
+        const data = await response.json();
+        localStorage.setItem(storageKey, JSON.stringify(data.setlistSongs));
+      } catch (err) {
+        console.error('Failed to fetch songs:', err);
+      }
+      return JSON.parse(localStorage.getItem(storageKey)) || [];
     }
 
     async function saveSongs(songs) {
