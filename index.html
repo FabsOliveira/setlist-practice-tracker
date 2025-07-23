@@ -21,7 +21,7 @@
       border: 1px solid #ddd;
       border-radius: 6px;
       padding: 0.75rem;
-      padding-right: 4.5rem;
+      padding-right: 5rem;
       margin-bottom: 0.75rem;
       display: flex;
       flex-direction: column;
@@ -38,37 +38,33 @@
       font-size: 1.1rem;
       margin-right: auto;
     }
-    .practice-button {
+    .button-column {
       position: absolute;
-      top: 0;
-      bottom: 0;
+      top: 0.5rem;
+      bottom: 0.5rem;
       right: 0.75rem;
-      margin: auto 0;
-      height: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.25rem;
+    }
+    .practice-button, .delete-button {
       background: none;
       border: none;
       font-size: 1.6rem;
       cursor: pointer;
-      color: #4caf50;
       transition: transform 0.1s ease-in-out;
+    }
+    .practice-button {
+      color: #4caf50;
     }
     .practice-button:hover {
       transform: scale(1.2);
       color: #2e7d32;
     }
     .delete-button {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 2.5rem;
-      margin: auto 0;
-      height: 1.6rem;
-      background: none;
-      border: none;
-      font-size: 1.6rem;
-      cursor: pointer;
       color: #f44336;
-      transition: transform 0.1s ease-in-out;
     }
     .delete-button:hover {
       transform: scale(1.2);
@@ -211,7 +207,7 @@
         const button = document.createElement('button');
         button.className = 'practice-button';
         button.title = days === 0 ? 'Undo practised today' : 'Mark as practised';
-        button.textContent = days === 0 ? '✅' : '⭕';
+        button.textContent = days === 0 ? '✅' : '❌';
         button.onclick = async () => {
           if (daysSince(song.lastPracticed) === 0) {
             if (song.previousPracticed) {
@@ -241,6 +237,11 @@
           }
         };
 
+        const buttonCol = document.createElement('div');
+        buttonCol.className = 'button-column';
+        buttonCol.appendChild(button);
+        buttonCol.appendChild(deleteBtn);
+
         header.appendChild(title);
         header.appendChild(starRating);
 
@@ -253,8 +254,7 @@
 
         div.appendChild(header);
         div.appendChild(footer);
-        div.appendChild(deleteBtn);
-        div.appendChild(button);
+        div.appendChild(buttonCol);
         list.appendChild(div);
       }
     }
