@@ -90,14 +90,19 @@
     const storageKey = 'setlistSongs';
 
     async function loadSongs() {
-      const response = await fetch('songs.json');
+      const response = await fetch('/songs');
       const data = await response.json();
       localStorage.setItem(storageKey, JSON.stringify(data.setlistSongs));
       return data.setlistSongs;
     }
 
-    function saveSongs(songs) {
+    async function saveSongs(songs) {
       localStorage.setItem(storageKey, JSON.stringify(songs));
+      await fetch('/songs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setlistSongs: songs })
+      });
     }
 
     function daysSince(dateStr) {
@@ -141,9 +146,9 @@
         title.className = 'song-title';
         title.textContent = song.title;
 
-        const starRating = renderStars(song.confidence, (rating) => {
+        const starRating = renderStars(song.confidence, async (rating) => {
           song.confidence = rating;
-          saveSongs(songs);
+          await saveSongs(songs);
           renderSongs();
         });
 
@@ -153,7 +158,7 @@
         button.className = 'practice-button';
         button.title = days === 0 ? 'Undo practised today' : 'Mark as practised';
         button.textContent = days === 0 ? '✅' : '⭕';
-        button.onclick = () => {
+        button.onclick = async () => {
           if (daysSince(song.lastPracticed) === 0) {
             if (song.previousPracticed) {
               song.lastPracticed = song.previousPracticed;
@@ -163,7 +168,7 @@
             song.previousPracticed = song.lastPracticed;
             song.lastPracticed = new Date().toISOString();
           }
-          saveSongs(songs);
+          await saveSongs(songs);
           renderSongs();
         };
 
@@ -184,7 +189,7 @@
       }
     }
 
-    function addSong() {
+    async function addSong() {
       const input = document.getElementById('songName');
       const title = input.value.trim();
       if (!title) return;
@@ -197,7 +202,7 @@
         confidence: 0,
         dateAdded: now
       });
-      saveSongs(songs);
+      await saveSongs(songs);
       input.value = '';
       renderSongs();
     }
