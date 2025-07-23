@@ -111,6 +111,8 @@
   <h2>Your Songs</h2>
   <div id="songList"></div>
 
+  <script src="daysSince.js"></script>
+
   <script>
     const storageKey = 'setlistSongs';
     const hashKey = 'setlistFileHash';
@@ -158,11 +160,6 @@
       updateSyncStatus();
     }
 
-    function daysSince(dateStr) {
-      const last = new Date(dateStr);
-      const now = new Date();
-      return Math.floor((now - last) / (1000 * 60 * 60 * 24));
-    }
 
     function renderStars(confidence, onClick) {
       const starContainer = document.createElement('div');
