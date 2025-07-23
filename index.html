@@ -179,7 +179,11 @@
       list.innerHTML = '';
       const songs = JSON.parse(localStorage.getItem(storageKey)) || [];
 
-      songs.sort((a, b) => daysSince(b.lastPracticed) - daysSince(a.lastPracticed));
+      // Sort by longest time since practice, then by confidence rating
+      songs.sort((a, b) => {
+        const diff = daysSince(b.lastPracticed) - daysSince(a.lastPracticed);
+        return diff !== 0 ? diff : b.confidence - a.confidence;  // higher stars first
+      });
 
       for (let song of songs) {
         if (song.confidence === undefined) song.confidence = 0;
