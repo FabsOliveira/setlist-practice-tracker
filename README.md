@@ -10,3 +10,9 @@ If you want to persist your songs beyond the browser and share them across devic
 run the small server included in this repository. First install the dependencies
 with `npm install`, then start the server with `npm start` (or `node server.js`).
 The server saves your song data to `songs.json`.
+
+## Import/Export
+Use the **Import Songs** button to load a JSON file containing your songs.
+Use **Export Songs** to download the current list for backup. A small sync
+indicator next to the buttons shows whether your page data matches the last
+imported or exported file.
